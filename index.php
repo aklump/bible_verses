@@ -3,7 +3,7 @@
  * @file
  * Builds a list of bible passages based on verse numbers using a public API
  *
- * @ingroup bible_quotes Bible Quotes
+ * @ingroup bible_verses Bible Verses
  * @{
  */
 

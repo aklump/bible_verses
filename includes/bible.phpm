@@ -3,7 +3,7 @@
  * @file
  * Models
  *
- * @ingroup bible_quotes
+ * @ingroup bible_verses
  * @{
  */
 
@@ -218,4 +218,4 @@ class ThemeVerse implements ThemeInterface {
   }
 }
 
-/** @} */ //end of group: bible_quotes
+/** @} */ //end of group: bible_verses
