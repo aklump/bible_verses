@@ -10,6 +10,7 @@ CONFIGURATION:
 * Then, enter the passages you would like to display one per line into
   our-father.txt
 * Visit the homepage/living and you'll see the page
+* Make sure cache has server write permissions
 
 STYLING:
 * Modify custom.css as needed; do not modify includes/style.css

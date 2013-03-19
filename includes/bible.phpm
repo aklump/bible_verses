@@ -137,14 +137,27 @@ abstract class Bible implements BibleInterface {
         $url .= "&$key=" . urlencode($value);
       }
 
-      $ch = curl_init($url);
-      curl_setopt($ch, CURLOPT_HEADER, FALSE);
-      curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
-      curl_setopt($ch, CURLOPT_FAILONERROR, TRUE);
-      curl_setopt($ch, CURLINFO_HEADER_OUT, TRUE);
-      $this->response = curl_exec($ch);
-      $this->http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-      curl_close($ch);
+      $cache_key = md5($url);
+      if (file_exists("./cache/$cache_key")) {
+        $this->response = file_get_contents("./cache/$cache_key");
+        $this->http_code = 200;
+      }
+      else {
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_HEADER, FALSE);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+        curl_setopt($ch, CURLOPT_FAILONERROR, TRUE);
+        curl_setopt($ch, CURLINFO_HEADER_OUT, TRUE);
+        $this->response = curl_exec($ch);
+        $this->http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        if ($this->http_code < 300) {
+          $handle = fopen("./cache/$cache_key", 'w');
+          fwrite($handle, $this->response);
+          fclose($handle);
+        }
+        curl_close($ch);
+      }
+
     }
     return $this;
   }
