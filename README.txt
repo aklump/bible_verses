@@ -1,4 +1,5 @@
-SUMMARY: A way to display bible passages using a web based lookup api
+SUMMARY: A PHP solution for collecting Bible verses into collections, using
+external APIs to provide the text.
 
 
 REQUIREMENTS:
@@ -14,7 +15,8 @@ CONFIGURATION:
   as you'd like
 * Create a file inside of pages called, say living.txt
 * The first line of living.txt will be the page title
-* Then, enter the passages you would liket to display one per line into living.txt
+* Then, enter the passages you would liket to display one per line into
+  living.txt
 * Visit the homepage/living and you'll see the page
 * Modify style.css as needed
 
