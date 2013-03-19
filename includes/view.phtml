@@ -1,0 +1,32 @@
+<?php
+/**
+ * @file
+ * Output the markup for $build
+ *
+ * @ingroup bible_quotes
+ * @{
+ */
+?>
+<!DOCTYPE html>
+<html>
+<head>
+    <title><?php print $page_title ?></title>
+    <link href="style.css" rel="stylesheet" type="text/css">
+    <link
+</head>
+
+<body>
+  <h1><?php print $page_title ?></h1>
+<?php
+foreach ($build as $verse) {
+  $theme = new ThemeVerse($verse);
+  if ($html = $theme->html()) {
+    print '<div class="verse">';
+    print '<p>' . $html . "</p>\n";
+    print '<hr />' . "\n";
+    print '</div>';
+  }
+}
+?>
+</body>
+</html>

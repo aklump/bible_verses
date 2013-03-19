@@ -1,0 +1,221 @@
+<?php
+/**
+ * @file
+ * Models
+ *
+ * @ingroup bible_quotes
+ * @{
+ */
+
+/**
+ * Interface VerseInterface
+ */
+interface VerseInterface {
+  public function setBook($bookname);
+  public function getBook();
+  public function setChapter($chapter);
+  public function getChapter();
+  public function setVerse($verse);
+  public function getVerse();
+  public function setText($text);
+  public function addText($text);
+  public function getText();
+}
+
+/**
+ * Class Quote
+ */
+class Verse implements VerseInterface {
+  protected $book, $chapter, $verse, $text;
+
+  /**
+   * Constructor
+   * @param string $verse
+   *   Something like 'John 3:16'
+   */
+  public function __construct($string) {
+    if (preg_match('/(.*?) ?(\d+)\:([-\d]+)/', $string, $parts)) {
+      $this->setBook($parts[1]);
+      $this->setChapter($parts[2]);
+      $this->setVerse($parts[3]);
+    }
+  }
+
+  /**
+   * Return the reference string including book, chapter and verse
+   *
+   * @return string
+   */
+  public function getReference() {
+    if ($this->getBook()) {
+      return $this->getBook() . ' ' . $this->getChapter() . ':' . $this->getVerse();
+    }
+    return '';
+  }
+
+  public function setBook($book){
+    $this->book = $book;
+    return TRUE;
+  }
+
+  public function getBook() {
+    return $this->book;
+  }
+
+  public function setChapter($chapter){
+    $this->chapter = $chapter;
+    return TRUE;
+  }
+
+  public function getChapter() {
+    return $this->chapter;
+  }
+
+  public function setVerse($verse){
+    $this->verse = $verse;
+    return TRUE;
+  }
+
+  public function getVerse() {
+    return $this->verse;
+  }
+
+  public function setText($text){
+    $this->text = $text;
+    return TRUE;
+  }
+
+  public function addText($text){
+    $current = $this->getText();
+    $this->text = $current . ' ' . trim($text);
+    return TRUE;
+  }
+
+  public function getText() {
+    return trim($this->text);
+  }
+}
+
+/**
+ * Interface BibleInterface
+ */
+interface BibleInterface {
+  public function lookup(Verse $verse);
+}
+
+/**
+ * Class Bible
+ */
+abstract class Bible implements BibleInterface {
+
+  protected $url, $query, $response, $http_code;
+
+  /**
+   * Constructor
+   */
+  public function __construct($options = array()) {
+    $this->query = $options;
+  }
+
+  /**
+   * Lookup a verse in a bible and return the results
+   */
+  public function lookup(Verse $verse) {
+    $this->query($verse);
+    return $verse;
+  }
+
+  /**
+   * Make the api call to retrieve the verse
+   */
+  protected function query(Verse $verse) {
+    if ($verse->getReference()) {
+      $this->query['passage'] = $verse->getReference();
+      $url = $this->url;
+      $url .= strstr($url, '?') ? '&' : '?';
+      foreach ($this->query as $key => $value) {
+        $url .= "&$key=" . urlencode($value);
+      }
+
+      $ch = curl_init($url);
+      curl_setopt($ch, CURLOPT_HEADER, FALSE);
+      curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+      curl_setopt($ch, CURLOPT_FAILONERROR, TRUE);
+      curl_setopt($ch, CURLINFO_HEADER_OUT, TRUE);
+      $this->response = curl_exec($ch);
+      $this->http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+      curl_close($ch);
+    }
+    return $this;
+  }
+}
+
+/**
+ * Class DouayRheims
+ */
+class DouayRheims extends Bible implements BibleInterface {
+
+  protected $url = 'http://api.preachingcentral.com/bible.php';
+
+  /**
+   * Constructor
+   */
+  public function __construct($options = array()) {
+    parent::__construct($options);
+    $this->query += array(
+      'version' => 'douayrheims',
+    );
+  }
+
+  /**
+   * Parse the return xml into the Verse
+   */
+  protected function query(Verse $verse) {
+    parent::query($verse);
+    if ($this->http_code < 300
+        && ($xml = simplexml_load_string($this->response))
+        && (!empty($xml->range->item))) {
+      foreach ($xml->range->item as $item) {
+        $verse->setBook((string) $item->bookname);
+        $verse->addText((string) $item->text);
+      }
+    }
+  }
+}
+
+/**
+ * Interface ThemeInterface
+ */
+interface ThemeInterface {
+  public function html();
+}
+
+/**
+ * Class ThemeVerse
+ */
+class ThemeVerse implements ThemeInterface {
+
+  protected $verse;
+
+  /**
+   * Constructor
+   * @param Verse $verse
+   */
+  public function __construct(Verse $verse) {
+    $this->verse = $verse;
+  }
+
+  /**
+   * Display the html for this verse
+   */
+  public function html() {
+    $output = '';
+    if ($this->verse->getReference()) {
+      $output .= '"' . $this->verse->getText() . '"' . "\n";
+      $output .= '- <em>' . $this->verse->getReference() . "</em>\n";
+    }
+    return $output;
+  }
+}
+
+/** @} */ //end of group: bible_quotes
