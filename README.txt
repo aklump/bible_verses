@@ -2,23 +2,17 @@ SUMMARY: A PHP solution for collecting Bible verses into collections, using
 external APIs to provide the text.
 
 
-REQUIREMENTS:
-
-
-INSTALLATION:
-* Download and unzip this module into your modules directory.
-* Goto Administer > Site Building > Modules and enable this module.
-
-
 CONFIGURATION:
-* pages/living.txt has been provided as an example; you may build as many pages
-  as you'd like
+* pages/living.txt has been provided as an example; you may build as many
+  collections (pages) as you'd like
 * Create a file inside of pages called, say living.txt
 * The first line of living.txt will be the page title
 * Then, enter the passages you would liket to display one per line into
   living.txt
 * Visit the homepage/living and you'll see the page
-* Modify style.css as needed
+
+STYLING:
+* Modify custom.css as needed; do not modify includes/style.css
 
 
 API:
