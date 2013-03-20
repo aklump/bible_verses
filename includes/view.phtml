@@ -6,28 +6,32 @@
  * @ingroup bible_verses
  * @{
  */
+$nav  = new Navigation();
+$link = new ThemeLink();
 ?>
 <!DOCTYPE html>
 <html>
 <head>
     <title><?php print $page_title ?></title>
-    <link href="includes/style.css" rel="stylesheet" type="text/css">
+    <link href="includes/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
     <link href="custom.css" rel="stylesheet" type="text/css">
     <link
 </head>
 
 <body>
+  <div id="navigation">
+    <?php print $link->model($nav->getPrev())->attr(array(
+      'class' => 'previous',
+    ))->html();?>
+    <?php print $link->model($nav->getNext())->attr(array(
+      'class' => 'next',
+    ))->html();?>
+    <?php print $link->model($nav->getHome())->attr(array(
+      'id' => 'home-link',
+    ))->html(); ?>
+  </div>
+
   <h1><?php print $page_title ?></h1>
-<?php
-foreach ($build as $verse) {
-  $theme = new ThemeVerse($verse);
-  if ($html = $theme->html()) {
-    print '<div class="verse">';
-    print '<p>' . $html . "</p>\n";
-    print '<hr />' . "\n";
-    print '</div>';
-  }
-}
-?>
+<?php print $view->html();?>
 </body>
 </html>

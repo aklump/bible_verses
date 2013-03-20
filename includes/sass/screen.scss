@@ -1,0 +1,127 @@
+/* Welcome to Compass.
+ * In this file you should write your main styles. (or centralize your imports)
+ * Import this file using the following HTML or equivalent:
+ * <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css" /> */
+
+@import "compass/reset";
+
+/**
+ * Output font-size (and line-height) in rem with px fallback
+ *
+ * @param $size
+ *   rem and px: will be converted to rem with px fallback
+ *   % and em will pass through without conversion
+ * @param $line_height
+ *   Optional, behaves same as $size
+ *
+ * @author Aaron Klump, In the Loft Studios, LLC
+ * @see http://www.intheloftstudios.com
+ * @see http://gist.github.com/2925506
+ */
+@mixin font-size($size, $line_height: false){
+  $rem_ratio: 16px / 1rem;
+
+  $unit: unit($size);
+  @if $unit == 'rem' {
+    font-size: $size * $rem_ratio;
+    font-size: $size;
+  }
+  @else if $unit == 'px' {
+    font-size: $size;
+    font-size: $size / $rem_ratio;
+  }
+  @else {
+    font-size: $size;
+  }
+
+  @if $line_height {
+    $unit: unit($line_height);
+    @if $unit == 'rem' {
+      line-height: $line_height * $rem_ratio;
+      line-height: $line_height;
+    }
+    @else if $unit == 'px' {
+      line-height: $line_height;
+      line-height: $line_height / $rem_ratio;
+    }
+    @else {
+      line-height: $line_height;
+    }
+  }
+}
+
+/* Color: brown */
+$brown: #8C6347;
+$brown_lightest: #F2D47E;
+$brown_light: #D19853;
+$brown_dark: #392117;
+$text_on_brown: #F2D47E;
+$text_on_brown_low_contrast: lighten($text_on_brown, 25);
+$text_on_brown_high_contrast: darken($text_on_brown, 25);
+
+$global_margin: 10px;
+
+body {
+  background: $brown_dark;
+  color: $text_on_brown;
+  padding-top: 30px;
+}
+h1 {
+  text-align: center;
+  border-bottom: 3px double $brown;
+  @include font_size(1.688rem);
+  margin-bottom: $global_margin;
+}
+hr {
+  border: 1px solid $brown;
+  border-bottom: 0;
+  height: 0;
+  width: 100%;
+}
+.verse {
+  p {
+    padding: 0 20px;
+  }
+}
+
+a {
+  color: $text_on_brown;
+  text-decoration: none;
+}
+a:hover {
+  text-decoration: underline;
+}
+
+$top: 3px;
+#home-link {
+  display: block;
+  position: fixed;
+  top: $top;
+  left: 50%;
+  margin-left: -20px;
+
+}
+#navigation {
+  position: fixed;
+  top: 0;
+  height: 20px + $top;
+  width: 100%;
+  background: $brown;
+  border-bottom: 3px solid $brown_dark;
+  a {
+    color: $text_on_brown;
+    position: fixed;
+    top: $top;
+  }
+  a.previous {
+    left: 10px;
+  }
+  a.next {
+    right: 10px;
+  }
+}
+
+.table-of-contents {
+  @include font_size(1.5rem);
+  margin: $global_margin;
+}
