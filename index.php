@@ -8,6 +8,7 @@
  */
 
 require_once './includes/bible.phpm';
+require_once './includes/theme.phpm';
 
 /**
  * Model
@@ -22,14 +23,27 @@ $page = isset($_GET['q']) ? $_GET['q'] : '';
 $source = "./pages/$page.txt";
 if (!file_exists($source)
       || !($passages = file($source))) {
-  die("Page $page not found");
+  $page_title = 'Index of Verse Collections';
+  $view = new ThemeIndex(new Navigation());
 }
-
-$page_title = trim(array_shift($passages));
-$build = array();
-foreach ($passages as $passage) {
-  $verse = new Verse($passage);
-  $build[] = $bible->lookup($verse);
+else {
+  $page_title = trim(array_shift($passages));
+  $build = array();
+  foreach ($passages as $passage) {
+    $verse = new Verse($passage);
+    $build[] = $bible->lookup($verse);
+  }
+  $output = '';
+  foreach ($build as $verse) {
+    $theme = new ThemeVerse($verse);
+    if ($html = $theme->html()) {
+      $output .= '<div class="verse">';
+      $output .= '<p>' . $html . "</p>\n";
+      $output .= '<hr />' . "\n";
+      $output .= '</div>';
+    }
+  }
+  $view = new Theme($output);
 }
 
 /**

@@ -197,37 +197,124 @@ class DouayRheims extends Bible implements BibleInterface {
 }
 
 /**
- * Interface ThemeInterface
+ * Interface NavigationInterface
  */
-interface ThemeInterface {
-  public function html();
+interface NavigationInterface {
+  /**
+   * Return the index array
+   *
+   * @return array
+   *   Each element contains:
+   *   - text: The text to show
+   *   - path: The link to the path
+   *   - description: A description of the page
+   *   - file: The filepath of the source data
+   */
+  public function getIndex();
+
+  /**
+   * Return an array to link to the index homepage
+   *
+   * @return array
+   */
+  public function getHome();
+
+  /**
+   * Return an array to link to the prev page
+   *
+   * @return array
+   */
+  public function getNext();
+
+  /**
+   * Return an array to link to the next page
+   *
+   * @return array
+   */
+  public function getPrev();
 }
 
 /**
- * Class ThemeVerse
+ * Class Navigation
  */
-class ThemeVerse implements ThemeInterface {
-
-  protected $verse;
-
-  /**
-   * Constructor
-   * @param Verse $verse
-   */
-  public function __construct(Verse $verse) {
-    $this->verse = $verse;
+class Navigation implements NavigationInterface {
+  public function getIndex() {
+    $pages = array();
+    $directory = 'pages';
+    $recursive = TRUE;
+    $files = $this->listFiles($directory, $recursive);
+    foreach ($files as $file) {
+      if (preg_match('/pages\/(.*)\.txt/', $file, $found)) {
+        $pages[] = array(
+          //@todo way to populate this
+          'text' => $found[1],
+          'path' => $found[1],
+          //@todo Some way to populate this
+          'description' => '',
+          'file' => realpath($file),
+        );
+      }
+    }
+    asort($pages);
+    return $pages;
   }
 
-  /**
-   * Display the html for this verse
-   */
-  public function html() {
-    $output = '';
-    if ($this->verse->getReference()) {
-      $output .= '"' . $this->verse->getText() . '"' . "\n";
-      $output .= '- <em>' . $this->verse->getReference() . "</em>\n";
+  private function listFiles($directory, $recursive) {
+    $array_items = array();
+    if ($handle = opendir($directory)) {
+      while (false !== ($file = readdir($handle))) {
+        if ($file != "." && $file != "..") {
+          if (is_dir($directory. "/" . $file)) {
+            if($recursive) {
+              $array_items = array_merge($array_items, $this->listFiles($directory. "/" . $file, $recursive));
+            }
+            $file = $directory . "/" . $file;
+            $array_items[] = preg_replace("/\/\//si", "/", $file);
+            }
+            else {
+              $file = $directory . "/" . $file;
+              $array_items[] = preg_replace("/\/\//si", "/", $file);
+            }
+          }
+        }
+        closedir($handle);
+      }
+    return $array_items;
+  }
+  public function getHome() {
+    if (!empty($_GET['q'])) {
+      $path = $_SERVER['PHP_SELF'];
+      return array(
+        'text' => 'Home',
+        'path' => $path,
+        'description' => '',
+        'file' => realpath($path),
+      );
     }
-    return $output;
+  }
+  public function getNext() {
+    if (empty($_GET['q'])) {
+      return;
+    }
+    $index = $this->getIndex();
+    foreach ($index as $item) {
+      if ($item['path'] == $_GET['q']) {
+        return current($index);
+      }
+    }
+  }
+  public function getPrev() {
+    if (empty($_GET['q'])) {
+      return;
+    }
+    $index = $this->getIndex();
+    $prev = end($index);
+    foreach ($index as $item) {
+      if ($item['path'] == $_GET['q']) {
+        return $prev;
+      }
+      $prev = $item;
+    }
   }
 }
 

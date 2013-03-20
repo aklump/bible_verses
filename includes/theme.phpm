@@ -1,0 +1,154 @@
+<?php
+/**
+ * @file
+ * Theme models
+ *
+ * @ingroup bible_verses
+ * @{
+ */
+/**
+ * Interface ThemeInterface
+ */
+interface ThemeInterface {
+  /**
+   * Set the model to be themed
+   *
+   * @param mixed $model
+   *
+   * @return $this
+   */
+  public function model($model);
+
+  /**
+   * Add attributes to the theme function
+   *
+   * @param array $attributes
+   *   It's up to the extended class how they implement these
+   *
+   * @return $this
+   */
+  public function attr($attributes);
+
+  /**
+   * Return the html markup for the view of this model
+   *
+   * @return string
+   */
+  public function html();
+}
+
+/**
+ * Class Theme
+ */
+class Theme implements ThemeInterface {
+  protected $model;
+  protected $attributes = array();
+
+  /**
+   * Constructor
+   * @param Verse $model
+   */
+  public function __construct($model = NULL) {
+    if ($model !== NULL) {
+      $this->model($model);
+    }
+  }
+
+  public function html() {
+    return $this->model;
+  }
+
+  public function model($model) {
+    $this->model = $model;
+    return $this;
+  }
+
+  public function attr($attributes) {
+    $this->attributes = (array) $attributes;
+    return $this;
+  }
+
+  /**
+   * Converts attributes array to inline
+   */
+  protected function attributes() {
+    $output = '';
+    foreach ($this->attributes as $key => $value) {
+      $output .= ' ' . $key . '="' . $value . '"';
+    }
+    return $output;
+  }
+}
+
+/**
+ * Class ThemeVerse
+ */
+class ThemeVerse extends Theme implements ThemeInterface {
+  /**
+   * Display the html for this verse
+   */
+  public function html() {
+    $output = '';
+    if ($this->model->getReference()) {
+      $output .= '"' . $this->model->getText() . '"' . "\n";
+      $ref = $this->model->getReference();
+      $lookup = $ref;
+      $lookup = str_replace(':', '.', $lookup);
+      $lookup = str_replace(' ', '', $lookup);
+      $link = new ThemeLink(array(
+        'text' => $ref,
+        'path' => 'http://biblia.com/bible/douayrheims/' . $lookup,
+      ));
+      $output .= '- <em>' . $link->attr(array(
+        'onclick' => "window.open(this.href); return false;"
+      ))->html() . "</em>\n";
+    }
+    return $output;
+  }
+}
+
+/**
+ * Class ThemeIndex
+ */
+class ThemeIndex extends Theme implements ThemeInterface {
+  /**
+   * Display the html for this verse
+   */
+  public function html() {
+    $output = '';
+    $link = new ThemeLink();
+    foreach ($this->model->getIndex() as $item) {
+      $output .= '<li>' . $link->model($item)->html() . '</li>';
+    }
+    $output = '<ol class="table-of-contents"' . $this->attributes() . '>' . $output . '</ol>' . "\n";
+    return $output;
+  }
+}
+
+/**
+ * Class ThemeLink
+ */
+class ThemeLink extends Theme implements ThemeInterface {
+
+  public function model($model) {
+    $model += array(
+      'text' => '',
+      'path' => '',
+      'description' => '',
+      'file' => '',
+    );
+    parent::model($model);
+    return $this;
+  }
+
+  /**
+   * Return the html for a link
+   */
+  public function html() {
+    return empty($this->model['text']) && empty($this->model['path'])
+    ? ''
+    : '<a href="' . $this->model['path'] . '"' . $this->attributes() . '>' . $this->model['text'] . '</a>' . "\n";
+  }
+}
+
+/** @} */ //end of group: bible_verses
