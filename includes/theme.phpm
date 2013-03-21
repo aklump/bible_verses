@@ -103,6 +103,7 @@ class ThemeVerse extends Theme implements ThemeInterface {
         'onclick' => "window.open(this.href); return false;"
       ))->html() . "</em>\n";
     }
+    $output = '<div class="verse"><p>' . $output . "</p><hr /></div>\n";
     return $output;
   }
 }
@@ -131,6 +132,7 @@ class ThemeIndex extends Theme implements ThemeInterface {
 class ThemeLink extends Theme implements ThemeInterface {
 
   public function model($model) {
+    $model = (array) $model;
     $model += array(
       'text' => '',
       'path' => '',

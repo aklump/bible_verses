@@ -7,13 +7,14 @@
  * @{
  */
 
-require_once './includes/bible.phpm';
+require_once './includes/Bible.phpm';
 require_once './includes/theme.phpm';
+require_once './config.php';
 
 /**
  * Model
  */
-$bible = new DouayRheims();
+$bible = new $classes['bible']();
 
 /**
  * Controller
@@ -21,26 +22,34 @@ $bible = new DouayRheims();
 // read all the passages and look the up compiling an output array
 $page = isset($_GET['q']) ? $_GET['q'] : '';
 $source = "./pages/$page.txt";
+$output = '';
+$page_title = '';
 if (!file_exists($source)
       || !($passages = file($source))) {
   $page_title = 'Index of Verse Collections';
-  $view = new ThemeIndex(new Navigation());
+  $view = new $themes['index'](new $classes['navigation']());
 }
 else {
-  $page_title = trim(array_shift($passages));
+  //$page_title = trim(array_shift($passages));
   $build = array();
   foreach ($passages as $passage) {
-    $verse = new Verse($passage);
-    $build[] = $bible->lookup($verse);
-  }
-  $output = '';
-  foreach ($build as $verse) {
-    $theme = new ThemeVerse($verse);
-    if ($html = $theme->html()) {
-      $output .= '<div class="verse">';
-      $output .= '<p>' . $html . "</p>\n";
-      $output .= '<hr />' . "\n";
-      $output .= '</div>';
+    // Headers (markup style beginning with '#')
+    if (preg_match('/^(#+)(.*)/', $passage, $markup)) {
+      if (empty($page_title) && $markup[1] == '#') {
+        $page_title = $markup[2];
+      }
+      else {
+        $tag = 'h' . strlen($markup[1]);
+        $output .= '<' . $tag . '>' . $markup[2] . '</' . $tag . '>' . "\n";
+      }
+    }
+
+    // Bible verses (all others)
+    else {
+      $verse = new $classes['verse']($passage);
+      $verse = $bible->lookup($verse);
+      $verse = new $themes['verse']($verse);
+      $output .= $verse->html();
     }
   }
   $view = new Theme($output);
