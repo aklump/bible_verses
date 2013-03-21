@@ -7,7 +7,7 @@
  * @{
  */
 
-require_once './includes/Bible.phpm';
+require_once './includes/bible.phpm';
 require_once './includes/theme.phpm';
 require_once './config.php';
 
