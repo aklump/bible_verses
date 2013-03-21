@@ -66,11 +66,14 @@ body {
   color: $text_on_brown;
   padding-top: 30px;
 }
-h1 {
+h1, h2 {
   text-align: center;
   border-bottom: 3px double $brown;
   @include font_size(1.688rem);
   margin-bottom: $global_margin;
+}
+h2 {
+  @include font_size(1.25rem);
 }
 hr {
   border: 1px solid $brown;
